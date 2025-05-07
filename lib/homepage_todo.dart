@@ -9,14 +9,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<String> tasks = [];
+  // タスク名と内容を持つマップのリストに変更
+  List<Map<String, String>> tasks = [];
 
   void _navigateToAddTaskPage() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const TaskPage()),
     );
-    if (result != null && result is String) {
+    // resultがMapなら追加
+    if (result != null && result is Map<String, String>) {
       setState(() {
         tasks.add(result);
       });
@@ -32,15 +34,26 @@ class _HomePageState extends State<HomePage> {
       body: ListView.builder(
         itemCount: tasks.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(tasks[index]),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                setState(() {
-                  tasks.removeAt(index);
-                });
-              },
+          final task = tasks[index];
+
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Colors.grey),
+            ),
+            elevation: 2,
+            child: ListTile(
+              title: Text(task['title'] ?? ''),
+              subtitle: Text(task['description'] ?? ''),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    tasks.removeAt(index);
+                  });
+                },
+              ),
             ),
           );
         },

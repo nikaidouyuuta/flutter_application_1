@@ -5,7 +5,8 @@ class TaskPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController taskController = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
@@ -16,17 +17,30 @@ class TaskPage extends StatelessWidget {
         child: Column(
           children: [
             TextField(
-              controller: taskController,
+              controller: titleController,
               decoration: const InputDecoration(
-                labelText: 'タスク',
+                labelText: 'タスク名',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 20),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'タスク内容',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 4, // 複数行対応
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                if (taskController.text.isNotEmpty) {
-                  Navigator.pop(context, taskController.text);
+                if (titleController.text.isNotEmpty &&
+                    descriptionController.text.isNotEmpty) {
+                  Navigator.pop(context, {
+                    'title': titleController.text,
+                    'description': descriptionController.text,
+                  });
                 }
               },
               child: const Text('追加'),
