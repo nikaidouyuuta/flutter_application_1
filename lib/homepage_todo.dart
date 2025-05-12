@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/taskpage.dart';
 
+// HomePageウィジェットを定義。状態を持つためStatefulWidgetを使用
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key}); // コンストラクタ
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
+// HomePageウィジェットの状態を管理するクラス
 class _HomePageState extends State<HomePage> {
   // タスク名と内容を持つマップのリストに変更
   List<Map<String, String>> tasks = [];
