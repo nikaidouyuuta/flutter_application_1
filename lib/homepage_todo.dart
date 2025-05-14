@@ -11,17 +11,21 @@ class HomePage extends StatefulWidget {
 
 // HomePageウィジェットの状態を管理するクラス
 class _HomePageState extends State<HomePage> {
-  // タスク名と内容を持つマップのリストに変更
+  // タスクのリストを定義。各タスクは「タイトル」と「内容」を持つMapとして保持
   List<Map<String, String>> tasks = [];
 
+// タスク追加ページへ遷移する非同期メソッド
   void _navigateToAddTaskPage() async {
+    // TaskPageへ遷移し、戻り値（追加されたタスク情報）を待つ
     final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const TaskPage()),
+      context, // 現在のコンテキスト
+      MaterialPageRoute(
+          builder: (context) => const TaskPage()), // TaskPageへのルート
     );
-    // resultがMapなら追加
+    // resultがnullでなく、かつMap<String, String>型であることを確認
     if (result != null && result is Map<String, String>) {
       setState(() {
+        // 取得したタスク情報をリストに追加
         tasks.add(result);
       });
     }
@@ -29,28 +33,40 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 画面全体の基本的な構造を提供するScaffoldウィジェット
     return Scaffold(
+      // アプリケーションバーの設定
       appBar: AppBar(
-        title: const Text('Todoリスト'),
+        title: const Text('Todoリスト'), // アプリバーのタイトル
       ),
+      // 画面のメインコンテンツ。タスクリストを表示するためにListView.builderを使用
       body: ListView.builder(
-        itemCount: tasks.length,
+        itemCount: tasks.length, // リストの項目数（タスクの数）
+        // 各リスト項目（タスク）を構築するためのビルダー関数
         itemBuilder: (context, index) {
+          // 現在のインデックスに対応するタスク情報を取得
           final task = tasks[index];
 
+          // 各タスクを表示するためのCardウィジェット
           return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.symmetric(
+                horizontal: 16, vertical: 8), // Cardの外側の余白
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: Colors.grey),
+              // Cardの形状を設定
+              borderRadius: BorderRadius.circular(10), // 角を丸くする
+              side: const BorderSide(color: Colors.grey), // 枠線の色を設定
             ),
-            elevation: 2,
+            elevation: 2, // Cardの影の深さ
+            // Card内のリスト項目を表示するためのListTileウィジェット
             child: ListTile(
-              title: Text(task['title'] ?? ''),
-              subtitle: Text(task['description'] ?? ''),
+              title: Text(task['title'] ?? ''), // タスクのタイトルを表示 (nullの場合は空文字列)
+              subtitle:
+                  Text(task['description'] ?? ''), // タスクの内容を表示 (nullの場合は空文字列)
+              // リスト項目の末尾に表示されるウィジェット (削除ボタン)
               trailing: IconButton(
-                icon: const Icon(Icons.delete),
+                icon: const Icon(Icons.delete), // 削除アイコン
                 onPressed: () {
+                  // ボタンが押された時の処理
                   setState(() {
                     tasks.removeAt(index);
                   });
@@ -60,8 +76,9 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+      // 画面右下に表示されるフローティングアクションボタン
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToAddTaskPage,
+        onPressed: _navigateToAddTaskPage, // ボタンが押されたらタスク追加ページへ遷移するメソッドを呼び出す
         tooltip: 'タスクの追加',
         child: const Icon(Icons.add),
       ),
