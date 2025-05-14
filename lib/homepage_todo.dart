@@ -31,6 +31,25 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // タスク編集ページへ遷移する非同期メソッド
+  void _navigateToEditTaskPage(int index) async {
+    final originalTask = tasks[index];
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TaskPage(
+          initialTitle: originalTask['title'] ?? '',
+          initialDescription: originalTask['description'] ?? '',
+        ),
+      ),
+    );
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        tasks[index] = result; // 指定位置のタスクを更新
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // 画面全体の基本的な構造を提供するScaffoldウィジェット
@@ -62,6 +81,7 @@ class _HomePageState extends State<HomePage> {
               title: Text(task['title'] ?? ''), // タスクのタイトルを表示 (nullの場合は空文字列)
               subtitle:
                   Text(task['description'] ?? ''), // タスクの内容を表示 (nullの場合は空文字列)
+              onTap: () => _navigateToEditTaskPage(index), // タップで編集
               // リスト項目の末尾に表示されるウィジェット (削除ボタン)
               trailing: IconButton(
                 icon: const Icon(Icons.delete), // 削除アイコン
