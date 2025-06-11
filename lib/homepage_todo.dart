@@ -258,95 +258,104 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       // 画面のメインコンテンツ。タスクリストを表示するためにListView.builderを使用
-      body: _filteredTasks.isEmpty && _searchController.text.isNotEmpty
+      body: _filteredTasks.isEmpty // ★変更点ここから
+              &&
+              _searchController.text.isEmpty // 検索ワードが空で、かつタスクも空の場合
           ? const Center(
-              child: Text('検索条件に一致するタスクはありません。'),
+              child: Text('タスクがありません。'), // 表示メッセージ
             )
-          : ListView.builder(
-              itemCount: _filteredTasks.length, // ★変更: フィルタリングされたリストを使用
-              // 各リスト項目（タスク）を構築するためのビルダー関数
-              itemBuilder: (context, index) {
-                // 現在のインデックスに対応するタスク情報を取得
-                final task = _filteredTasks[index]; // ★変更: フィルタリングされたリストから取得
-                final bool isFavorite =
-                    task['isFavorite'] ?? false; // お気に入り状態を取得
-                final String? createdAtString = task['createdAt']; // 作成日時を取得
+          : _filteredTasks.isEmpty && _searchController.text.isNotEmpty
+              ? const Center(
+                  child: Text('検索条件に一致するタスクはありません。'),
+                ) // ★変更点ここまで
+              : ListView.builder(
+                  itemCount: _filteredTasks.length, // ★変更: フィルタリングされたリストを使用
+                  // 各リスト項目（タスク）を構築するためのビルダー関数
+                  itemBuilder: (context, index) {
+                    // 現在のインデックスに対応するタスク情報を取得
+                    final task =
+                        _filteredTasks[index]; // ★変更: フィルタリングされたリストから取得
+                    final bool isFavorite =
+                        task['isFavorite'] ?? false; // お気に入り状態を取得
+                    final String? createdAtString =
+                        task['createdAt']; // 作成日時を取得
 
-                String formattedDate = '';
-                if (createdAtString != null) {
-                  try {
-                    final DateTime createdAt = DateTime.parse(createdAtString);
-                    // 日付フォーマットをyyyy/MM/dd HH:mm に設定
-                    formattedDate =
-                        DateFormat('yyyy/MM/dd HH:mm').format(createdAt);
-                  } catch (e) {
-                    print('Error parsing date: $e');
-                  }
-                }
+                    String formattedDate = '';
+                    if (createdAtString != null) {
+                      try {
+                        final DateTime createdAt =
+                            DateTime.parse(createdAtString);
+                        // 日付フォーマットをyyyy/MM/dd HH:mm に設定
+                        formattedDate =
+                            DateFormat('yyyy/MM/dd HH:mm').format(createdAt);
+                      } catch (e) {
+                        print('Error parsing date: $e');
+                      }
+                    }
 
-                // 各タスクを表示するためのCardウィジェット
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8), // Cardの外側の余白
-                  shape: RoundedRectangleBorder(
-                    // Cardの形状を設定
-                    borderRadius: BorderRadius.circular(10), // 角を丸くする
-                    side: const BorderSide(color: Colors.grey), // 枠線の色を設定
-                  ),
-                  elevation: 2, // Cardの影の深さ
-                  // Card内のリスト項目を表示するためのListTileウィジェット
-                  child: ListTile(
-                    // ★追加: お気に入りボタン
-                    leading: IconButton(
-                      icon: Icon(
-                        isFavorite
-                            ? Icons.star // お気に入りの場合
-                            : Icons.star_border, // お気に入りでない場合
-                        color: isFavorite
-                            ? Colors.amber // お気に入りの場合は金色
-                            : Colors.grey, // お気に入りでない場合は灰色
+                    // 各タスクを表示するためのCardウィジェット
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8), // Cardの外側の余白
+                      shape: RoundedRectangleBorder(
+                        // Cardの形状を設定
+                        borderRadius: BorderRadius.circular(10), // 角を丸くする
+                        side: const BorderSide(color: Colors.grey), // 枠線の色を設定
                       ),
-                      onPressed: () =>
-                          _toggleFavorite(index), // クリックでお気に入り状態を切り替え
-                    ),
-                    title: Text(
-                      task['title'] ?? '',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    // ★変更: subtitleに説明と日付を表示
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          task['description'] ?? '',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (formattedDate.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              formattedDate,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.grey),
-                            ),
+                      elevation: 2, // Cardの影の深さ
+                      // Card内のリスト項目を表示するためのListTileウィジェット
+                      child: ListTile(
+                        // ★追加: お気に入りボタン
+                        leading: IconButton(
+                          icon: Icon(
+                            isFavorite
+                                ? Icons.star // お気に入りの場合
+                                : Icons.star_border, // お気に入りでない場合
+                            color: isFavorite
+                                ? Colors.amber // お気に入りの場合は金色
+                                : Colors.grey, // お気に入りでない場合は灰色
                           ),
-                      ],
-                    ),
-                    onTap: () => _navigateToEditTaskPage(index), // タップで編集
-                    // リスト項目の末尾に表示されるウィジェット (削除ボタン)
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete), // 削除アイコン
-                      // ★変更: お気に入り状態の場合、onPressedをnullにしてボタンを無効化
-                      onPressed: isFavorite
-                          ? null // お気に入りの場合は無効
-                          : () => _deleteTask(index), // ★変更: 削除メソッドを呼び出し
-                    ),
-                  ),
-                );
-              },
-            ),
+                          onPressed: () =>
+                              _toggleFavorite(index), // クリックでお気に入り状態を切り替え
+                        ),
+                        title: Text(
+                          task['title'] ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        // ★変更: subtitleに説明と日付を表示
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              task['description'] ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (formattedDate.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  formattedDate,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                              ),
+                          ],
+                        ),
+                        onTap: () => _navigateToEditTaskPage(index), // タップで編集
+                        // リスト項目の末尾に表示されるウィジェット (削除ボタン)
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete), // 削除アイコン
+                          // ★変更: お気に入り状態の場合、onPressedをnullにしてボタンを無効化
+                          onPressed: isFavorite
+                              ? null // お気に入りの場合は無効
+                              : () => _deleteTask(index), // ★変更: 削除メソッドを呼び出し
+                        ),
+                      ),
+                    );
+                  },
+                ),
       // 画面右下に表示されるフローティングアクションボタン
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddTaskPage, // ボタンが押されたらタスク追加ページへ遷移するメソッドを呼び出す
